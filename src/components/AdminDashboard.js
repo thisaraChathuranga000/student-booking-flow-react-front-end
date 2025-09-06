@@ -260,7 +260,6 @@ const AdminDashboard = ({ onLogout }) => {
                 <thead>
                   <tr>
                     <th>Date</th>
-                    <th>Time</th>
                     <th>Student Name</th>
                     <th>Email</th>
                     <th>Course</th>
@@ -273,7 +272,6 @@ const AdminDashboard = ({ onLogout }) => {
                   {filteredBookings.map(booking => (
                     <tr key={booking.id}>
                       <td>{formatDate(booking.date)}</td>
-                      <td>{booking.time}</td>
                       <td>{booking.name}</td>
                       <td>{booking.email}</td>
                       <td>{booking.course}</td>

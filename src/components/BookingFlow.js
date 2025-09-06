@@ -45,16 +45,41 @@ export default function BookingFlow() {
   //   return Math.max(0, TOTAL - (BOOKED[key] || 0));
   // }, [date]);
 
-  // Calendar: Use current date for real-time calendar
-  const calendar = useMemo(() => {
+  // Calendar: Track current viewing month/year
+  const [calendarMonth, setCalendarMonth] = useState(() => {
     const now = new Date();
-    return buildCalendar(now.getFullYear(), now.getMonth());
-  }, []);
+    return { year: now.getFullYear(), month: now.getMonth() };
+  });
+
+  const calendar = useMemo(() => {
+    return buildCalendar(calendarMonth.year, calendarMonth.month);
+  }, [calendarMonth]);
 
   // Handy derived labels
   const dayLabel = date
     ? date.toLocaleDateString(undefined, { weekday: "long" })
     : "Day";
+
+  // Month navigation functions
+  const goToPrevMonth = () => {
+    setCalendarMonth(prev => {
+      const newMonth = prev.month - 1;
+      if (newMonth < 0) {
+        return { year: prev.year - 1, month: 11 };
+      }
+      return { year: prev.year, month: newMonth };
+    });
+  };
+
+  const goToNextMonth = () => {
+    setCalendarMonth(prev => {
+      const newMonth = prev.month + 1;
+      if (newMonth > 11) {
+        return { year: prev.year + 1, month: 0 };
+      }
+      return { year: prev.year, month: newMonth };
+    });
+  };
 
   const handleSubmit = async () => {
     // Add booking to global context
@@ -131,6 +156,8 @@ export default function BookingFlow() {
               setTime={setTime}
               dayLabel={dayLabel}
               onNext={() => setStep(2)}
+              onPrevMonth={goToPrevMonth}
+              onNextMonth={goToNextMonth}
             />
           )}
 

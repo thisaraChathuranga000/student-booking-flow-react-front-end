@@ -3,7 +3,7 @@ import "./StepCalendar.css";
 import { MONTHS, sameDay } from "../utils/calendarUtils";
 
 export default function StepCalendar({
-  calendar, date, setDate, time, setTime, dayLabel, onNext
+  calendar, date, setDate, time, setTime, dayLabel, onNext, onPrevMonth, onNextMonth
 }) {
   const monthName = MONTHS[calendar.month];
 
@@ -26,7 +26,23 @@ export default function StepCalendar({
       <div className="bf-grid">
         {/* Calendar */}
         <div>
-          <div className="bf-month">{monthName} {calendar.year}</div>
+          <div className="bf-month">
+            <button 
+              onClick={onPrevMonth}
+              className="bf-month-nav"
+              title="Previous month"
+            >
+              ‹
+            </button>
+            <span>{monthName} {calendar.year}</span>
+            <button 
+              onClick={onNextMonth}
+              className="bf-month-nav"
+              title="Next month"
+            >
+              ›
+            </button>
+          </div>
 
           <div className="bf-weekdays">
             {"MON TUE WED THU FRI SAT SUN".split(" ").map((d) => (
