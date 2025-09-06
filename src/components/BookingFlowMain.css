@@ -1,0 +1,403 @@
+/* BookingFlow Main Component Styles */
+
+/* Modern Home Header */
+.home-header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 2rem 3rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 8px 32px rgba(102, 126, 234, 0.3);
+  backdrop-filter: blur(10px);
+  position: relative;
+  width: 100%;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+  min-height: 80px;
+}
+
+.home-header::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="20" cy="20" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="80" cy="80" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="40" cy="60" r="1" fill="rgba(255,255,255,0.05)"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+  opacity: 0.3;
+  pointer-events: none;
+}
+
+.home-header-content {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  min-width: 300px;
+}
+
+.home-header-content h1 {
+  margin: 0;
+  font-size: 2.2rem;
+  font-weight: 700;
+  background: linear-gradient(45deg, #fff, #e8f4fd);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  line-height: 1.2;
+  word-break: break-word;
+}
+
+.home-header-content p {
+  margin: 0.5rem 0 0 0;
+  opacity: 0.9;
+  font-size: 1.1rem;
+  font-weight: 300;
+  letter-spacing: 0.5px;
+  line-height: 1.4;
+  word-break: break-word;
+}
+
+.header-actions {
+  position: relative;
+  z-index: 1;
+  flex-shrink: 0;
+}
+
+.button-login {
+  background: rgba(255, 255, 255, 0.15);
+  color: white;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  padding: 0.75rem 2rem;
+  border-radius: 50px;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  font-weight: 600;
+  font-size: 0.95rem;
+  letter-spacing: 0.5px;
+  backdrop-filter: blur(10px);
+  position: relative;
+  z-index: 1;
+  text-decoration: none;
+}
+
+ 
+
+/* Remove old admin access styles */
+.admin-access {
+  display: none;
+}
+
+.admin-link {
+  display: none;
+}
+
+/* Main layout adjustments */
+.bf-page {
+  min-height: 100vh;
+  padding: 0;
+  position: relative;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  overflow-x: hidden;
+}
+
+.bf-wrap {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 450px 1fr;
+  gap: 32px;
+  padding: 0 2rem 2rem 2rem;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.bf-left {
+  padding: 32px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.bf-right {
+  padding: 32px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Responsive Design for Home Header */
+@media (max-width: 1200px) {
+  .home-header {
+    padding: 1.5rem 2rem;
+  }
+  
+  .home-header-content h1 {
+    font-size: 1.9rem;
+  }
+  
+  .bf-wrap {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+    padding: 0 2rem 2rem 2rem;
+    max-width: 100%;
+  }
+  
+  .bf-left,
+  .bf-right {
+    padding: 2rem;
+    margin: 0 auto;
+    max-width: 600px;
+  }
+}
+
+@media (max-width: 992px) {
+  .home-header {
+    padding: 1.5rem;
+    flex-direction: column;
+    text-align: center;
+    gap: 1.5rem;
+  }
+  
+  .home-header-content {
+    min-width: auto;
+    width: 100%;
+  }
+  
+  .home-header-content h1 {
+    font-size: 1.8rem;
+  }
+  
+  .header-actions {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+  }
+  
+  .bf-wrap {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+    padding: 0 1.5rem 1.5rem 1.5rem;
+  }
+  
+  .bf-left,
+  .bf-right {
+    padding: 1.5rem;
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 768px) {
+  .home-header {
+    padding: 1.5rem 1rem;
+    flex-direction: column;
+    gap: 1.2rem;
+    text-align: center;
+  }
+  
+  .home-header-content {
+    min-width: auto;
+    text-align: center;
+    width: 100%;
+  }
+  
+  .home-header-content h1 {
+    font-size: 1.6rem;
+    line-height: 1.2;
+    margin-bottom: 0.5rem;
+  }
+  
+  .home-header-content p {
+    font-size: 0.95rem;
+    line-height: 1.4;
+  }
+  
+  .header-actions {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+  }
+  
+  .login-button {
+    padding: 0.8rem 2rem;
+    font-size: 0.95rem;
+    min-width: 140px;
+  }
+  
+  .bf-wrap {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+    padding: 0 1rem 1.5rem 1rem;
+  }
+  
+  .bf-left,
+  .bf-right {
+    padding: 1.2rem;
+    margin: 0;
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 576px) {
+  .home-header {
+    padding: 1.2rem 0.8rem;
+    gap: 1rem;
+  }
+  
+  .home-header-content h1 {
+    font-size: 1.4rem;
+    line-height: 1.3;
+    margin-bottom: 0.3rem;
+  }
+  
+  .home-header-content p {
+    font-size: 0.85rem;
+    line-height: 1.3;
+    margin-top: 0.3rem;
+  }
+  
+  .login-button {
+    padding: 0.7rem 1.8rem;
+    font-size: 0.9rem;
+    min-width: 130px;
+  }
+  
+  .bf-wrap {
+    padding: 0 0.8rem 1rem 0.8rem;
+    gap: 1rem;
+  }
+  
+  .bf-left,
+  .bf-right {
+    padding: 1rem;
+    border-radius: 16px;
+  }
+}
+
+@media (max-width: 1024px) {
+  .home-header {
+    padding: 1.5rem;
+    flex-wrap: wrap;
+  }
+  
+  .home-header-content h1 {
+    font-size: 1.9rem;
+  }
+  
+  .bf-wrap {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+    padding: 0 1.5rem 2rem 1.5rem;
+  }
+  
+  .bf-left,
+  .bf-right {
+    padding: 1.8rem;
+    max-width: 700px;
+    margin: 0 auto;
+  }
+}
+
+@media (max-width: 480px) {
+  .home-header {
+    padding: 1rem 0.5rem;
+    gap: 0.8rem;
+  }
+  
+  .home-header-content h1 {
+    font-size: 1.2rem;
+    line-height: 1.3;
+    margin-bottom: 0.2rem;
+  }
+  
+  .home-header-content p {
+    font-size: 0.8rem;
+    margin-top: 0.2rem;
+    line-height: 1.3;
+  }
+  
+  .login-button {
+    padding: 0.6rem 1.5rem;
+    font-size: 0.85rem;
+    border-radius: 50px;
+    min-width: 120px;
+  }
+  
+  .bf-wrap {
+    padding: 0 0.5rem 1rem 0.5rem;
+    gap: 0.8rem;
+  }
+  
+  .bf-left,
+  .bf-right {
+    padding: 0.8rem;
+    border-radius: 12px;
+  }
+}
+
+@media (max-width: 360px) {
+  .home-header {
+    padding: 0.8rem 0.3rem;
+    gap: 0.6rem;
+  }
+  
+  .home-header-content h1 {
+    font-size: 1.1rem;
+    line-height: 1.2;
+  }
+  
+  .home-header-content p {
+    font-size: 0.75rem;
+    line-height: 1.2;
+  }
+  
+  .login-button {
+    padding: 0.5rem 1.2rem;
+    font-size: 0.8rem;
+    min-width: 100px;
+  }
+  
+  .bf-wrap {
+    padding: 0 0.3rem 0.8rem 0.3rem;
+  }
+  
+  .bf-left,
+  .bf-right {
+    padding: 0.6rem;
+    border-radius: 10px;
+  }
+}
+
+/* Additional responsive fixes */
+@media (max-width: 320px) {
+  .home-header {
+    padding: 0.6rem 0.2rem;
+  }
+  
+  .home-header-content h1 {
+    font-size: 1rem;
+    line-height: 1.1;
+  }
+  
+  .home-header-content p {
+    font-size: 0.7rem;
+  }
+  
+  .login-button {
+    padding: 0.4rem 1rem;
+    font-size: 0.75rem;
+    min-width: 90px;
+  }
+  
+  .bf-wrap {
+    padding: 0 0.2rem 0.6rem 0.2rem;
+    gap: 0.5rem;
+  }
+  
+  .bf-left,
+  .bf-right {
+    padding: 0.5rem;
+  }
+}

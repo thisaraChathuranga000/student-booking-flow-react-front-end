@@ -1,0 +1,103 @@
+import React from "react";
+import "./StepCalendar.css";
+import { MONTHS, sameDay } from "../utils/calendarUtils";
+
+export default function StepCalendar({
+  calendar, date, setDate, time, setTime, dayLabel, onNext
+}) {
+  const monthName = MONTHS[calendar.month];
+
+  // block past dates (today 00:00 local)
+  const today = new Date(); today.setHours(0,0,0,0);
+
+  return (
+    <div>
+      <div className="bf-right-top">
+        <h2 className="bf-h2">Select a Date & Time</h2>
+        {date && (
+          <div className="bf-pill">
+            {date.toLocaleDateString(undefined, {
+              weekday: "long", month: "long", day: "numeric",
+            })}
+          </div>
+        )}
+      </div>
+
+      <div className="bf-grid">
+        {/* Calendar */}
+        <div>
+          <div className="bf-month">{monthName} {calendar.year}</div>
+
+          <div className="bf-weekdays">
+            {"MON TUE WED THU FRI SAT SUN".split(" ").map((d) => (
+              <div key={d}>{d}</div>
+            ))}
+          </div>
+
+          <div className="bf-days">
+            {calendar.cells.map((d, i) => {
+              const active = date && d && sameDay(date, d);
+              const otherMonth = !(d && d.getMonth() === calendar.month);
+              const past = d && d < today;
+              const disabled = otherMonth || past;
+              return (
+                <button
+                  key={i}
+                  disabled={disabled}
+                  onClick={() => setDate(d)}
+                  className={[
+                    "bf-day",
+                    otherMonth ? "bf-day-dim" : "",
+                    past ? "bf-day-past" : "",
+                    active ? "bf-day-active" : "",
+                    disabled ? "bf-day-disabled" : ""
+                  ].join(" ")}
+                  title={past ? "Past dates are not available" : ""}
+                >
+                  {d ? d.getDate() : ""}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Time & Next */}
+        <div className="bf-slot">
+          <div className="bf-slot-title">
+            {dayLabel}, 09:00 AM
+          </div>
+
+          <div className="bf-slot-row">
+            <button
+              onClick={() => setTime("09:00")}
+              className={`bf-btn-time ${time === "09:00" ? "bf-btn-time--active" : ""}`}
+              title={"Select 09:00 AM"}
+            >
+              09:00 AM
+            </button>
+
+            {/* {isFull ? (
+              <div className="bf-spots bf-spots--full">FULL</div>
+            ) : (
+              <div className="bf-spots">spots left - 50</div>
+            )} */}
+            <div className="bf-spots">spots left - 50</div>
+          </div>
+
+          <button
+            onClick={onNext}
+            disabled={!date || time !== "09:00"}
+            className="bf-btn-primary bf-btn-next"
+            title={!date ? "Pick a date" : (time !== "09:00" ? "Pick 09:00" : "Next")}
+          >
+            Next
+          </button>
+
+          {/* {isFull && (
+            <p className="bf-full-hint">This day has reached the 50-student capacity. Please choose another date.</p>
+          )} */}
+        </div>
+      </div>
+    </div>
+  );
+}

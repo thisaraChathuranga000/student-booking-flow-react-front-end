@@ -1,0 +1,23 @@
+/* SuccessScreen Component Styles */
+
+.bf-success{display:grid;place-items:center;gap:16px;padding:48px 12px;text-align:center}
+.bf-success-icon{width:64px;height:64px;border-radius:16px;background:#ecfdf5;color:var(--good);display:grid;place-items:center;font-size:32px;font-weight:800;border:2px solid #10b981;box-shadow:0 4px 16px rgba(16,185,129,.2)}
+.bf-success-title{margin:8px 0 0;font-size:26px;color:#1e293b;font-weight:600}
+.bf-success-text{color:#475569;margin:0 0 12px;font-size:16px;line-height:1.6}
+.bf-outline-btn{display:inline-block;border:2px solid #3b82f6;border-radius:12px;padding:10px 18px;color:#3b82f6;text-decoration:none;font-weight:600;font-size:15px;transition:all 0.2s ease}
+.bf-outline-btn:hover{background:#f1f5f9;transform:translateY(-1px);box-shadow:0 2px 8px rgba(59,130,246,.15)}
+
+/* Summary card on success */
+.bf-summary-card{
+  width:100%;
+  max-width:600px;
+  text-align:left;
+  background:#fff;
+  border:2px solid var(--ring);
+  border-radius:16px;
+  padding:16px 20px;
+  box-shadow:0 4px 16px rgba(0,0,0,.05);
+}
+.bf-summary-row{padding:8px 0;border-bottom:1px dotted #e2e8f0;color:#1e293b;font-size:15px}
+.bf-summary-row:last-child{border-bottom:none}
+.bf-summary-row strong{font-weight:600;color:#374151}

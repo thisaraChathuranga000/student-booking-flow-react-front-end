@@ -1,0 +1,481 @@
+/* StepCalendar Component Styles */
+
+.bf-right-top{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:4px}
+.bf-h2{margin:0;font-size:24px;color:#1e293b;font-weight:600}
+.bf-pill{border-radius:25px;background:#f1f5f9;padding:8px 16px;font-size:14px;color:#3b82f6;border:1px solid #e2e8f0;font-weight:600}
+
+.bf-grid{display:grid;grid-template-columns:1fr 280px;gap:24px;margin-top:24px}
+.bf-month{font-weight:700;margin:0 0 8px;color:#1e293b;font-size:18px}
+
+.bf-weekdays{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;text-align:center;color:#64748b;font-size:13px;font-weight:700;margin-bottom:4px}
+.bf-days{display:grid;grid-template-columns:repeat(7,1fr);gap:8px}
+.bf-day{aspect-ratio:1/1;border-radius:12px;background:#f8fafc;border:1px solid #e2e8f0;font-size:15px;cursor:pointer;color:#1e293b;font-weight:500;transition:all 0.2s ease}
+.bf-day:hover{background:#f1f5f9;transform:translateY(-1px);box-shadow:0 2px 8px rgba(0,0,0,0.1)}
+.bf-day-dim{opacity:.45}
+.bf-day-disabled{opacity:.35;cursor:not-allowed}
+.bf-day-active{background:#3b82f6!important;color:#fff;border-color:#3b82f6;transform:translateY(-1px);box-shadow:0 4px 12px rgba(59,130,246,.3)}
+
+/* Past-day visual */
+.bf-day-past{
+  position:relative;
+  background:#f1f5f9;
+  border-style:dashed;
+}
+.bf-day-past::after{
+  content:"";
+  position:absolute;inset:0;border-radius:12px;border:2px dashed #cbd5e1;
+}
+
+.bf-tz{display:flex;align-items:center;gap:10px;margin-top:20px}
+.bf-tz-icon{opacity:.8}
+.bf-tz-label{font-size:15px;color:#475569;font-weight:500}
+.bf-tz-current{margin-left:8px;font-weight:700;color:#3b82f6}
+.bf-select{margin-left:auto;max-width:280px;width:100%;border:2px solid var(--ring);border-radius:12px;background:#fff;padding:10px 12px;color:#1e293b;font-size:14px}
+
+.bf-slot{border:2px solid var(--ring);border-radius:16px;padding:18px;background:#f8fafc}
+.bf-slot-title{font-weight:700;color:#1e293b;font-size:16px;margin-bottom:2px}
+.bf-slot-row{display:flex;align-items:center;gap:12px;margin-top:12px}
+.bf-btn-time{flex:1;border:2px solid #e2e8f0;background:#f8fafc;border-radius:12px;padding:12px 14px;font-weight:600;cursor:pointer;color:#1e293b;font-size:15px;transition:all 0.2s ease}
+.bf-btn-time:hover{background:#f1f5f9;border-color:#3b82f6;transform:translateY(-1px);box-shadow:0 2px 8px rgba(59,130,246,.15)}
+.bf-btn-time--active{background:#3b82f6;color:#fff;border-color:#3b82f6;transform:translateY(-1px);box-shadow:0 4px 12px rgba(59,130,246,.3)}
+.bf-btn-time--disabled{opacity:.5;cursor:not-allowed}
+
+.bf-spots{white-space:nowrap;background:#ecfdf5;color:#047857;border-radius:25px;padding:8px 12px;font-size:13px;font-weight:700;border:1px solid #10b981}
+.bf-spots--full{background:#fef2f2;color:#dc2626;border-color:#ef4444}
+
+.bf-btn-next{margin-top:16px}
+.bf-full-hint{margin-top:12px;color:#ef4444;font-size:14px;font-weight:500}
+
+/* Responsive Design for StepCalendar */
+@media (max-width: 1200px) {
+  .bf-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  
+  .bf-h2 {
+    font-size: 22px;
+  }
+  
+  .bf-month {
+    font-size: 17px;
+  }
+}
+
+@media (max-width: 992px) {
+  .bf-right-top {
+    gap: 12px;
+    margin-bottom: 8px;
+    flex-wrap: wrap;
+  }
+  
+  .bf-h2 {
+    font-size: 20px;
+  }
+  
+  .bf-pill {
+    padding: 6px 14px;
+    font-size: 13px;
+  }
+  
+  .bf-grid {
+    gap: 18px;
+    margin-top: 20px;
+  }
+  
+  .bf-month {
+    font-size: 16px;
+    margin-bottom: 6px;
+  }
+  
+  .bf-weekdays {
+    gap: 6px;
+    font-size: 12px;
+  }
+  
+  .bf-days {
+    gap: 6px;
+  }
+  
+  .bf-day {
+    font-size: 14px;
+    border-radius: 10px;
+  }
+  
+  .bf-slot {
+    padding: 16px;
+    border-radius: 14px;
+  }
+  
+  .bf-slot-title {
+    font-size: 15px;
+  }
+  
+  .bf-btn-time {
+    padding: 10px 12px;
+    font-size: 14px;
+    border-radius: 10px;
+  }
+  
+  .bf-tz {
+    gap: 8px;
+    margin-top: 16px;
+  }
+  
+  .bf-tz-label {
+    font-size: 14px;
+  }
+  
+  .bf-select {
+    max-width: 240px;
+    padding: 8px 10px;
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 768px) {
+  .bf-right-top {
+    gap: 10px;
+    margin-bottom: 6px;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .bf-h2 {
+    font-size: 18px;
+  }
+  
+  .bf-pill {
+    padding: 5px 12px;
+    font-size: 12px;
+    align-self: flex-start;
+  }
+  
+  .bf-grid {
+    gap: 16px;
+    margin-top: 16px;
+  }
+  
+  .bf-month {
+    font-size: 15px;
+    margin-bottom: 5px;
+  }
+  
+  .bf-weekdays {
+    gap: 4px;
+    font-size: 11px;
+    margin-bottom: 3px;
+  }
+  
+  .bf-days {
+    gap: 4px;
+  }
+  
+  .bf-day {
+    font-size: 13px;
+    border-radius: 8px;
+    min-height: 35px;
+  }
+  
+  .bf-slot {
+    padding: 14px;
+    border-radius: 12px;
+  }
+  
+  .bf-slot-title {
+    font-size: 14px;
+  }
+  
+  .bf-slot-row {
+    gap: 10px;
+    margin-top: 10px;
+    flex-wrap: wrap;
+  }
+  
+  .bf-btn-time {
+    padding: 9px 10px;
+    font-size: 13px;
+    border-radius: 8px;
+    min-width: 80px;
+  }
+  
+  .bf-tz {
+    gap: 6px;
+    margin-top: 14px;
+    flex-wrap: wrap;
+  }
+  
+  .bf-tz-label {
+    font-size: 13px;
+  }
+  
+  .bf-select {
+    max-width: 200px;
+    padding: 7px 8px;
+    font-size: 12px;
+    border-radius: 8px;
+  }
+  
+  .bf-spots {
+    padding: 6px 10px;
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 576px) {
+  .bf-right-top {
+    gap: 8px;
+    margin-bottom: 4px;
+  }
+  
+  .bf-h2 {
+    font-size: 16px;
+  }
+  
+  .bf-pill {
+    padding: 4px 10px;
+    font-size: 11px;
+  }
+  
+  .bf-grid {
+    gap: 14px;
+    margin-top: 14px;
+  }
+  
+  .bf-month {
+    font-size: 14px;
+    margin-bottom: 4px;
+  }
+  
+  .bf-weekdays {
+    gap: 3px;
+    font-size: 10px;
+  }
+  
+  .bf-days {
+    gap: 3px;
+  }
+  
+  .bf-day {
+    font-size: 12px;
+    border-radius: 6px;
+    min-height: 32px;
+  }
+  
+  .bf-slot {
+    padding: 12px;
+    border-radius: 10px;
+  }
+  
+  .bf-slot-title {
+    font-size: 13px;
+  }
+  
+  .bf-slot-row {
+    gap: 8px;
+    margin-top: 8px;
+  }
+  
+  .bf-btn-time {
+    padding: 8px 9px;
+    font-size: 12px;
+    border-radius: 6px;
+    min-width: 70px;
+  }
+  
+  .bf-tz {
+    gap: 5px;
+    margin-top: 12px;
+  }
+  
+  .bf-tz-label {
+    font-size: 12px;
+  }
+  
+  .bf-select {
+    max-width: 180px;
+    padding: 6px 7px;
+    font-size: 11px;
+  }
+  
+  .bf-spots {
+    padding: 5px 8px;
+    font-size: 11px;
+  }
+  
+  .bf-btn-next {
+    margin-top: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .bf-right-top {
+    gap: 6px;
+    margin-bottom: 3px;
+  }
+  
+  .bf-h2 {
+    font-size: 15px;
+  }
+  
+  .bf-pill {
+    padding: 3px 8px;
+    font-size: 10px;
+  }
+  
+  .bf-grid {
+    gap: 12px;
+    margin-top: 12px;
+  }
+  
+  .bf-month {
+    font-size: 13px;
+    margin-bottom: 3px;
+  }
+  
+  .bf-weekdays {
+    gap: 2px;
+    font-size: 9px;
+  }
+  
+  .bf-days {
+    gap: 2px;
+  }
+  
+  .bf-day {
+    font-size: 11px;
+    border-radius: 5px;
+    min-height: 30px;
+  }
+  
+  .bf-slot {
+    padding: 10px;
+    border-radius: 8px;
+  }
+  
+  .bf-slot-title {
+    font-size: 12px;
+  }
+  
+  .bf-slot-row {
+    gap: 6px;
+    margin-top: 6px;
+  }
+  
+  .bf-btn-time {
+    padding: 7px 8px;
+    font-size: 11px;
+    border-radius: 5px;
+    min-width: 60px;
+  }
+  
+  .bf-tz {
+    gap: 4px;
+    margin-top: 10px;
+  }
+  
+  .bf-tz-label {
+    font-size: 11px;
+  }
+  
+  .bf-select {
+    max-width: 160px;
+    padding: 5px 6px;
+    font-size: 10px;
+  }
+  
+  .bf-spots {
+    padding: 4px 6px;
+    font-size: 10px;
+  }
+  
+  .bf-btn-next {
+    margin-top: 10px;
+  }
+}
+
+@media (max-width: 360px) {
+  .bf-right-top {
+    gap: 4px;
+    margin-bottom: 2px;
+  }
+  
+  .bf-h2 {
+    font-size: 14px;
+  }
+  
+  .bf-pill {
+    padding: 2px 6px;
+    font-size: 9px;
+  }
+  
+  .bf-grid {
+    gap: 10px;
+    margin-top: 10px;
+  }
+  
+  .bf-month {
+    font-size: 12px;
+    margin-bottom: 2px;
+  }
+  
+  .bf-weekdays {
+    gap: 1px;
+    font-size: 8px;
+  }
+  
+  .bf-days {
+    gap: 1px;
+  }
+  
+  .bf-day {
+    font-size: 10px;
+    border-radius: 4px;
+    min-height: 28px;
+  }
+  
+  .bf-slot {
+    padding: 8px;
+    border-radius: 6px;
+  }
+  
+  .bf-slot-title {
+    font-size: 11px;
+  }
+  
+  .bf-slot-row {
+    gap: 4px;
+    margin-top: 4px;
+  }
+  
+  .bf-btn-time {
+    padding: 6px 7px;
+    font-size: 10px;
+    border-radius: 4px;
+    min-width: 50px;
+  }
+  
+  .bf-tz {
+    gap: 3px;
+    margin-top: 8px;
+  }
+  
+  .bf-tz-label {
+    font-size: 10px;
+  }
+  
+  .bf-select {
+    max-width: 140px;
+    padding: 4px 5px;
+    font-size: 9px;
+  }
+  
+  .bf-spots {
+    padding: 3px 5px;
+    font-size: 9px;
+  }
+  
+  .bf-btn-next {
+    margin-top: 8px;
+  }
+}
