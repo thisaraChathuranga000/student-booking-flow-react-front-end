@@ -2,7 +2,13 @@ import React from "react";
 import "./SuccessScreen.css";
 import { formatTimeToAMPM } from "../utils/calendarUtils";
 
-export default function SuccessScreen({ inviteUrl, scheduled }) {
+export default function SuccessScreen({ inviteUrl, scheduled, calendarLinks }) {
+  const handleDownloadICS = () => {
+    if (calendarLinks?.downloadICS) {
+      calendarLinks.downloadICS();
+    }
+  };
+
   return (
     <div className="bf-success">
       <div className="bf-success-icon">✔</div>
@@ -10,6 +16,37 @@ export default function SuccessScreen({ inviteUrl, scheduled }) {
       <p className="bf-success-text">
         A calendar invitation has been sent to your email address.
       </p>
+
+      {/* Calendar Action Buttons */}
+      {calendarLinks && (
+        <div className="bf-calendar-actions">
+          <p className="bf-calendar-text">Add to your calendar:</p>
+          <div className="bf-calendar-buttons">
+            <a 
+              href={calendarLinks.google} 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="bf-calendar-btn bf-calendar-btn--google"
+            >
+              📅 Google Calendar
+            </a>
+            <a 
+              href={calendarLinks.outlook} 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="bf-calendar-btn bf-calendar-btn--outlook"
+            >
+              📅 Outlook
+            </a>
+            <button 
+              onClick={handleDownloadICS}
+              className="bf-calendar-btn bf-calendar-btn--download"
+            >
+              📥 Download .ics
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Details summary */}
       <div className="bf-summary-card">

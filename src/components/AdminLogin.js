@@ -1,28 +1,44 @@
-import React, { useState } from 'react';
+import React from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import {
+  selectUsername,
+  selectPassword,
+  selectLoginError,
+  selectIsLoginLoading,
+  setUsername,
+  setPassword,
+  loginStart,
+  loginSuccess,
+  loginFailure
+} from '../store/slices/adminLoginSlice';
+import { userAPI } from '../services/api';
 import './AdminLogin.css';
 
 const AdminLogin = ({ onLogin }) => {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
+  const username = useSelector(selectUsername);
+  const password = useSelector(selectPassword);
+  const error = useSelector(selectLoginError);
+  const isLoading = useSelector(selectIsLoginLoading);
+  const dispatch = useDispatch();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setIsLoading(true);
-    setError('');
+    dispatch(loginStart());
 
-    // Simple authentication - in real app, this would be an API call
-    if (username === 'admin' && password === 'admin123') {
-      setTimeout(() => {
+    try {
+      const data = await userAPI.login({
+        username,
+        password,
+      });
+
+      if (data.success) {
+        dispatch(loginSuccess());
         onLogin(true);
-        setIsLoading(false);
-      }, 1000);
-    } else {
-      setTimeout(() => {
-        setError('Invalid username or password');
-        setIsLoading(false);
-      }, 1000);
+      } else {
+        dispatch(loginFailure('Invalid username or password'));
+      }
+    } catch (error) {
+      dispatch(loginFailure('Login failed. Please try again.'));
     }
   };
 
@@ -41,7 +57,7 @@ const AdminLogin = ({ onLogin }) => {
               type="text"
               id="username"
               value={username}
-              onChange={(e) => setUsername(e.target.value)}
+              onChange={(e) => dispatch(setUsername(e.target.value))}
               required
               placeholder="Enter your username"
             />
@@ -53,7 +69,7 @@ const AdminLogin = ({ onLogin }) => {
               type="password"
               id="password"
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={(e) => dispatch(setPassword(e.target.value))}
               required
               placeholder="Enter your password"
             />
@@ -69,12 +85,6 @@ const AdminLogin = ({ onLogin }) => {
             {isLoading ? 'Logging in...' : 'Login'}
           </button>
         </form>
-        
-        <div className="demo-credentials">
-          <p><strong>Demo Credentials:</strong></p>
-          <p>Username: admin</p>
-          <p>Password: admin123</p>
-        </div>
       </div>
     </div>
   );

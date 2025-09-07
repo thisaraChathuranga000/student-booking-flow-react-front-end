@@ -1,14 +1,44 @@
-import React from "react";
+import React, { useEffect } from "react";
+import { useSelector, useDispatch } from "react-redux";
 import "./StepCalendar.css";
-import { MONTHS, sameDay } from "../utils/calendarUtils";
+import { MONTHS, sameDay, formatDateForAPI } from "../utils/calendarUtils";
+import { bookingAPI } from "../services/api";
+import { MAX_SPOTS } from "../constants/bookingConstants";
+import { selectBookingCount, selectIsLoadingCount, setBookingCount, setIsLoadingCount } from "../store/slices/bookingFlowSlice";
 
 export default function StepCalendar({
   calendar, date, setDate, time, setTime, dayLabel, onNext, onPrevMonth, onNextMonth
 }) {
+  const dispatch = useDispatch();
   const monthName = MONTHS[calendar.month];
+  const bookingCount = useSelector(selectBookingCount);
+  const isLoadingCount = useSelector(selectIsLoadingCount);
+  const today = new Date(); 
+  today.setHours(0,0,0,0);
+  const availableSpots = MAX_SPOTS - bookingCount;
+  const isFull = bookingCount >= MAX_SPOTS;
 
-  // block past dates (today 00:00 local)
-  const today = new Date(); today.setHours(0,0,0,0);
+  useEffect(() => {
+    if (date) {
+      const fetchBookingCount = async () => {
+        dispatch(setIsLoadingCount(true));
+        try {
+          const formattedDate = formatDateForAPI(date);
+          const result = await bookingAPI.getBookingCount(formattedDate);
+          dispatch(setBookingCount(result.count || 0));
+        } catch (error) {
+          console.error('Failed to fetch booking count:', error);
+          dispatch(setBookingCount(0));
+        } finally {
+          dispatch(setIsLoadingCount(false));
+        }
+      };
+      
+      fetchBookingCount();
+    } else {
+      dispatch(setBookingCount(0));
+    }
+  }, [date, dispatch]);
 
   return (
     <div>
@@ -88,30 +118,41 @@ export default function StepCalendar({
               onClick={() => setTime("09:00")}
               className={`bf-btn-time ${time === "09:00" ? "bf-btn-time--active" : ""}`}
               title={"Select 09:00 AM"}
+              disabled={isFull}
             >
               09:00 AM
             </button>
 
-            {/* {isFull ? (
+            {isLoadingCount ? (
+              <div className="bf-spots">Loading...</div>
+            ) : isFull ? (
               <div className="bf-spots bf-spots--full">FULL</div>
             ) : (
-              <div className="bf-spots">spots left - 50</div>
-            )} */}
-            <div className="bf-spots">spots left - 50</div>
+              <div className="bf-spots">spots left - {availableSpots}</div>
+            )}
           </div>
 
           <button
             onClick={onNext}
-            disabled={!date || time !== "09:00"}
+            disabled={!date || time !== "09:00" || isFull}
             className="bf-btn-primary bf-btn-next"
-            title={!date ? "Pick a date" : (time !== "09:00" ? "Pick 09:00" : "Next")}
+            title={
+              !date 
+                ? "Pick a date" 
+                : isFull 
+                  ? "This date is fully booked" 
+                  : (time !== "09:00" ? "Pick 09:00" : "Next")
+            }
           >
             Next
           </button>
 
-          {/* {isFull && (
-            <p className="bf-full-hint">This day has reached the 50-student capacity. Please choose another date.</p>
-          )} */}
+          {isFull && date && (
+            <p className="bf-full-hint">
+              This day has reached the 50-student capacity. Please choose another date.
+            </p>
+          )}
+
         </div>
       </div>
     </div>

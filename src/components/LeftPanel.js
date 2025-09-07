@@ -2,7 +2,7 @@ import React from "react";
 import "./LeftPanel.css";
 import InfoRow from "./InfoRow";
 
-export default function LeftPanel({ center, date, time, tz, zoneLabel, formatRange }) {
+export default function LeftPanel({ center }) {
   return (
     <aside className="bf-card bf-left">
       <header className="bf-header">

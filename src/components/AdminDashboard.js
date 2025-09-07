@@ -1,31 +1,76 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
-import { useBookings } from '../context/BookingContext';
+import { useSelector, useDispatch } from 'react-redux';
+import {
+  selectSelectedDate,
+  selectSelectedCourse,
+  selectSearchTerm,
+  selectIsLoading,
+  selectFilteredBookings,
+  setSelectedDate,
+  setSelectedCourse,
+  setSearchTerm,
+  setIsLoading,
+  setFilteredBookings,
+  clearFilters,
+  clearSelectedDate,
+  clearSelectedCourse,
+  clearSearchTerm
+} from '../store/slices/adminDashboardSlice';
+import { bookingAPI } from '../services/api';
 import { COURSE_OPTIONS } from '../constants/courseOptions';
+import { exportBookingsToCSV, formatDate } from '../utils/exportUtils';
 import './AdminDashboard.css';
 
 const AdminDashboard = ({ onLogout }) => {
-  const { bookings, updateBookingStatus, deleteBooking } = useBookings();
-  const [selectedDate, setSelectedDate] = useState(null);
-  const [selectedCourse, setSelectedCourse] = useState('');
-  const [searchTerm, setSearchTerm] = useState('');
-  const [filteredBookings, setFilteredBookings] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [bookings, setBookings] = useState([]);
+  const [apiError, setApiError] = useState(null);
+  const selectedDate = useSelector(selectSelectedDate);
+  const selectedCourse = useSelector(selectSelectedCourse);
+  const searchTerm = useSelector(selectSearchTerm);
+  const isLoading = useSelector(selectIsLoading);
+  const filteredBookings = useSelector(selectFilteredBookings);
+  const dispatch = useDispatch();
 
+  // Fetch bookings from API
   useEffect(() => {
-    // Simulate loading time
-    setTimeout(() => {
-      setIsLoading(false);
-    }, 1000);
-  }, []);
+    const fetchBookings = async () => {
+      try {
+        dispatch(setIsLoading(true));
+        const data = await bookingAPI.getBookings();
+        // Transform API data to match expected format
+        const transformedBookings = data.map(booking => ({
+          id: booking._id,
+          date: booking.date,
+          name: booking.name,
+          email: booking.email,
+          lesson: booking.lesson,
+          course: booking.course
+        }));
+        setBookings(transformedBookings);
+        setApiError(null);
+      } catch (error) {
+        console.error('Failed to fetch bookings:', error);
+        setApiError('Failed to load bookings. Please try again.');
+        setBookings([]);
+      } finally {
+        dispatch(setIsLoading(false));
+      }
+    };
+
+    fetchBookings();
+  }, [dispatch]);
 
   useEffect(() => {
     let filtered = bookings;
-
-    // Filter by date if selected
     if (selectedDate) {
-      const selectedDateString = selectedDate.toISOString().split('T')[0];
+      // Format selected date to YYYY-MM-DD to match API format
+      const year = selectedDate.getFullYear();
+      const month = String(selectedDate.getMonth() + 1).padStart(2, '0');
+      const day = String(selectedDate.getDate()).padStart(2, '0');
+      const selectedDateString = `${year}-${month}-${day}`;
+      
       filtered = filtered.filter(booking => booking.date === selectedDateString);
     }
 
@@ -43,65 +88,33 @@ const AdminDashboard = ({ onLogout }) => {
       );
     }
 
-    setFilteredBookings(filtered);
-  }, [selectedDate, selectedCourse, searchTerm, bookings]);
+    dispatch(setFilteredBookings(filtered));
+  }, [selectedDate, selectedCourse, searchTerm, bookings, dispatch]);
 
-  const getStatusBadge = (status) => {
-    const statusClass = status === 'confirmed' ? 'status-confirmed' : 'status-pending';
-    return <span className={`status-badge ${statusClass}`}>{status}</span>;
+  const handleClearFilters = () => {
+    dispatch(clearFilters());
   };
 
-  const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      weekday: 'long',
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
+  const handleExportBookings = () => {
+    exportBookingsToCSV(filteredBookings, {
+      selectedDate,
+      selectedCourse,
+      searchTerm
     });
   };
 
-  const clearFilters = () => {
-    setSelectedDate(null);
-    setSelectedCourse('');
-    setSearchTerm('');
-  };
-
-  const exportBookings = () => {
-    const dataToExport = filteredBookings;
-    const csvContent = [
-      ['Date', 'Time', 'Name', 'Email', 'Course', 'Lesson', 'Status'],
-      ...dataToExport.map(booking => [
-        booking.date,
-        booking.time,
-        booking.name,
-        booking.email,
-        booking.course,
-        booking.lesson,
-        booking.status
-      ])
-    ].map(row => row.join(',')).join('\n');
-
-    const blob = new Blob([csvContent], { type: 'text/csv' });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    
-    // Generate filename based on filters
-    let filename = 'bookings';
-    if (selectedDate) {
-      filename += `-${selectedDate.toISOString().split('T')[0]}`;
+  // Handle delete booking
+  const handleDeleteBooking = async (bookingId) => {
+    if (window.confirm('Are you sure you want to delete this booking?')) {
+      try {
+        await bookingAPI.deleteBooking(bookingId);
+        // Remove the booking from local state
+        setBookings(prevBookings => prevBookings.filter(booking => booking.id !== bookingId));
+      } catch (error) {
+        console.error('Failed to delete booking:', error);
+        alert('Failed to delete booking. Please try again.');
+      }
     }
-    if (selectedCourse) {
-      filename += `-${selectedCourse.replace(/\s+/g, '-')}`;
-    }
-    if (searchTerm) {
-      filename += `-search-${searchTerm.replace(/\s+/g, '-')}`;
-    }
-    filename += '.csv';
-    
-    a.download = filename;
-    a.click();
-    window.URL.revokeObjectURL(url);
   };
 
   if (isLoading) {
@@ -110,6 +123,19 @@ const AdminDashboard = ({ onLogout }) => {
         <div className="loading-container">
           <div className="loading-spinner"></div>
           <p>Loading booking data...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (apiError) {
+    return (
+      <div className="admin-dashboard">
+        <div className="error-container">
+          <p className="error-message">{apiError}</p>
+          <button onClick={() => window.location.reload()} className="retry-button">
+            Retry
+          </button>
         </div>
       </div>
     );
@@ -137,7 +163,7 @@ const AdminDashboard = ({ onLogout }) => {
                   id="search-input"
                   type="text"
                   value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
+                  onChange={(e) => dispatch(setSearchTerm(e.target.value))}
                   placeholder="Search by name or email..."
                   className="search-input"
                 />
@@ -150,7 +176,7 @@ const AdminDashboard = ({ onLogout }) => {
               <DatePicker
                 id="date-picker"
                 selected={selectedDate}
-                onChange={(date) => setSelectedDate(date)}
+                onChange={(date) => dispatch(setSelectedDate(date))}
                 placeholderText="Select a date..."
                 className="date-picker-input"
                 dateFormat="MMMM d, yyyy"
@@ -163,7 +189,7 @@ const AdminDashboard = ({ onLogout }) => {
               <select
                 id="course-filter"
                 value={selectedCourse}
-                onChange={(e) => setSelectedCourse(e.target.value)}
+                onChange={(e) => dispatch(setSelectedCourse(e.target.value))}
                 className="course-filter-select"
               >
                 <option value="">All Courses</option>
@@ -176,10 +202,10 @@ const AdminDashboard = ({ onLogout }) => {
             </div>
             
             <div className="filter-actions">
-              <button onClick={clearFilters} className="clear-filters-btn">
+              <button onClick={handleClearFilters} className="clear-filters-btn">
                 Clear Filters
               </button>
-              <button onClick={exportBookings} className="export-button">
+              <button onClick={handleExportBookings} className="export-button">
                 Export to CSV
               </button>
             </div>
@@ -193,56 +219,29 @@ const AdminDashboard = ({ onLogout }) => {
               {selectedDate && (
                 <span className="filter-tag">
                   Date: {selectedDate.toLocaleDateString()}
-                  <button onClick={() => setSelectedDate(null)} className="remove-filter">×</button>
+                  <button onClick={() => dispatch(clearSelectedDate())} className="remove-filter">×</button>
                 </span>
               )}
               {selectedCourse && (
                 <span className="filter-tag">
                   Course: {selectedCourse}
-                  <button onClick={() => setSelectedCourse('')} className="remove-filter">×</button>
+                  <button onClick={() => dispatch(clearSelectedCourse())} className="remove-filter">×</button>
                 </span>
               )}
               {searchTerm && (
                 <span className="filter-tag">
                   Search: "{searchTerm}"
-                  <button onClick={() => setSearchTerm('')} className="remove-filter">×</button>
+                  <button onClick={() => dispatch(clearSearchTerm())} className="remove-filter">×</button>
                 </span>
               )}
             </div>
           </div>
         )}
 
-        <div className="bookings-summary">
-          <div className="summary-card">
-            <h3>Total Bookings</h3>
-            <p className="summary-number">{filteredBookings.length}</p>
-          </div>
-          <div className="summary-card">
-            <h3>Confirmed</h3>
-            <p className="summary-number confirmed">
-              {filteredBookings.filter(b => b.status === 'confirmed').length}
-            </p>
-          </div>
-          <div className="summary-card">
-            <h3>Pending</h3>
-            <p className="summary-number pending">
-              {filteredBookings.filter(b => b.status === 'pending').length}
-            </p>
-          </div>
-        </div>
 
         <div className="bookings-table-container">
           <h2>
-            Booking Details
-            {selectedDate && (
-              <span className="selected-date"> for {formatDate(selectedDate.toISOString().split('T')[0])}</span>
-            )}
-            {selectedCourse && (
-              <span className="selected-course"> - {selectedCourse}</span>
-            )}
-            {searchTerm && (
-              <span className="search-term"> matching "{searchTerm}"</span>
-            )}
+            Total Bookings: {filteredBookings.length}
           </h2>
           
           {filteredBookings.length === 0 ? (
@@ -264,45 +263,21 @@ const AdminDashboard = ({ onLogout }) => {
                     <th>Email</th>
                     <th>Course</th>
                     <th>Lesson</th>
-                    <th>Status</th>
                     <th>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
                   {filteredBookings.map(booking => (
                     <tr key={booking.id}>
-                      <td>{formatDate(booking.date)}</td>
+                      <td>{booking.date}</td>
                       <td>{booking.name}</td>
                       <td>{booking.email}</td>
                       <td>{booking.course}</td>
                       <td>{booking.lesson}</td>
-                      <td>{getStatusBadge(booking.status)}</td>
                       <td>
                         <div className="action-buttons">
-                          {booking.status === 'pending' && (
-                            <button 
-                              onClick={() => updateBookingStatus(booking.id, 'confirmed')}
-                              className="action-btn confirm-btn"
-                              title="Confirm booking"
-                            >
-                              ✓
-                            </button>
-                          )}
-                          {booking.status === 'confirmed' && (
-                            <button 
-                              onClick={() => updateBookingStatus(booking.id, 'pending')}
-                              className="action-btn pending-btn"
-                              title="Mark as pending"
-                            >
-                              ⏳
-                            </button>
-                          )}
                           <button 
-                            onClick={() => {
-                              if (window.confirm('Are you sure you want to delete this booking?')) {
-                                deleteBooking(booking.id);
-                              }
-                            }}
+                            onClick={() => handleDeleteBooking(booking.id)}
                             className="action-btn delete-btn"
                             title="Delete booking"
                           >

@@ -1,120 +1,137 @@
 import React, { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { useBookings } from "../context/BookingContext";
+import { useSelector, useDispatch } from "react-redux";
+import {
+  selectStep,
+  selectTimezone,
+  selectDate,
+  selectTime,
+  selectFormData,
+  selectScheduled,
+  selectCalendarMonth,
+  setStep,
+  setTimezone,
+  setDate,
+  setTime,
+  setName,
+  setEmail,
+  setLesson,
+  setCourse,
+  setScheduled,
+  goToPrevMonth,
+  goToNextMonth
+} from "../store/slices/bookingFlowSlice";
+import { addBooking } from "../store/slices/bookingSlice";
+import { bookingAPI } from "../services/api";
 import "../styles/globals.css";
 import "./BookingFlowMain.css";
 import LeftPanel from "./LeftPanel";
 import StepCalendar from "./StepCalendar";
 import StepForm from "./StepForm";
 import SuccessScreen from "./SuccessScreen";
-import { buildCalendar, toKey, formatRange, zoneLabel } from "../utils/calendarUtils";
+import { buildCalendar, toKey, formatRange, zoneLabel, formatDateForAPI } from "../utils/calendarUtils";
+import { generateCalendarLinks } from "../utils/calendarInvitation";
+import { CENTER } from "../constants/instituteData";
+import { INVITE_URL } from "../constants/url";
+ 
 
 export default function BookingFlow() {
-  const { addBooking } = useBookings();
-  const [step, setStep] = useState(1);          // 1 = calendar, 2 = form, 3 = success
-  const [tz, setTz] = useState("Asia/Colombo");
-  const [date, setDate] = useState(null);       // JS Date
-  const [time, setTime] = useState("");         // select 09:00 explicitly
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [lesson, setLesson] = useState("");
-  const [course, setCourse] = useState("");
-
-  // This will hold the final data to display on the success page
-  const [scheduled, setScheduled] = useState(null);
-
-  // For demo, Gmail inbox as the "open invitation" link.
-  const inviteUrl = "https://mail.google.com/mail/u/0/#inbox";
-
-  const CENTER = {
-    org: "International sugar studio and campus",
-    title: "Battramulla Center– Student Weekly Plans",
-    duration: "6 hr",
-    address: "no 165/1/2, B240, Battaramulla",
-  };
-
-  // Demo data for booked counts; key = YYYY-MM-DD
-  // Put 50 on a date to simulate FULL.
-  // const BOOKED = { "2025-08-30": 27, "2025-08-31": 50 };
-  // const TOTAL = 50;
-
-  // Compute seats left for the chosen day
-  // const spotsLeft = useMemo(() => {
-  //   if (!date) return TOTAL;
-  //   const key = toKey(date);
-  //   return Math.max(0, TOTAL - (BOOKED[key] || 0));
-  // }, [date]);
-
-  // Calendar: Track current viewing month/year
-  const [calendarMonth, setCalendarMonth] = useState(() => {
-    const now = new Date();
-    return { year: now.getFullYear(), month: now.getMonth() };
-  });
+  const dispatch = useDispatch();
+  const [isLoading, setIsLoading] = useState(false);
+  const [calendarLinks, setCalendarLinks] = useState(null);
+  const step = useSelector(selectStep);
+  const tz = useSelector(selectTimezone);
+  const date = useSelector(selectDate);
+  const time = useSelector(selectTime);
+  const { name, email, lesson, course } = useSelector(selectFormData);
+  const scheduled = useSelector(selectScheduled);
+  const calendarMonth = useSelector(selectCalendarMonth);
 
   const calendar = useMemo(() => {
     return buildCalendar(calendarMonth.year, calendarMonth.month);
   }, [calendarMonth]);
 
-  // Handy derived labels
   const dayLabel = date
     ? date.toLocaleDateString(undefined, { weekday: "long" })
     : "Day";
 
-  // Month navigation functions
-  const goToPrevMonth = () => {
-    setCalendarMonth(prev => {
-      const newMonth = prev.month - 1;
-      if (newMonth < 0) {
-        return { year: prev.year - 1, month: 11 };
-      }
-      return { year: prev.year, month: newMonth };
-    });
-  };
-
-  const goToNextMonth = () => {
-    setCalendarMonth(prev => {
-      const newMonth = prev.month + 1;
-      if (newMonth > 11) {
-        return { year: prev.year + 1, month: 0 };
-      }
-      return { year: prev.year, month: newMonth };
-    });
-  };
-
   const handleSubmit = async () => {
-    // Add booking to global context
+    setIsLoading(true);
+
     const bookingData = {
-      date: toKey(date),
-      time,
-      name,
-      email,
       course,
-      lesson
+      date: formatDateForAPI(date),
+      email,
+      lesson,
+      name
     };
     
-    addBooking(bookingData);
-    
-    // Prepare data for success page
-    setScheduled({
-      dateKey: toKey(date),
-      dateLabel: date.toLocaleDateString(undefined, {
-        weekday: "long",
-        month: "long",
-        day: "numeric",
-        year: "numeric",
-      }),
-      time,
-      tzLabel: zoneLabel(tz),
-      name,
-      email,
-      course,
-      lesson,
-      duration: "6 hr",
-      address: CENTER.address,
-      org: CENTER.org,
-      title: CENTER.title,
-    });
-    setStep(3);
+    try {
+      const result = await bookingAPI.createBooking(bookingData);
+      dispatch(addBooking(bookingData));
+      
+      const scheduledData = {
+        dateKey: bookingData.date,
+        dateLabel: date.toLocaleDateString(undefined, {
+          weekday: "long",
+          month: "long",
+          day: "numeric",
+          year: "numeric",
+        }),
+        time,
+        tzLabel: zoneLabel(tz),
+        name,
+        email,
+        course,
+        lesson,
+        duration: "6 hr",
+        address: CENTER.address,
+        org: CENTER.org,
+        title: CENTER.title,
+        bookingId: result?.id,
+      };
+      
+      // Generate calendar links for the booking
+      const calendarBookingData = {
+        name,
+        email,
+        course,
+        lesson,
+        date: bookingData.date,
+        time,
+        duration: 6, // 6 hours duration
+        center: CENTER
+      };
+      
+      const links = generateCalendarLinks(calendarBookingData);
+      setCalendarLinks(links);
+      
+      // Attempt to send calendar invitation via backend
+      try {
+        await bookingAPI.sendCalendarInvitation({
+          to: email,
+          bookingData: calendarBookingData,
+          scheduledData
+        });
+        console.log('Calendar invitation sent successfully');
+      } catch (inviteError) {
+        console.warn('Failed to send calendar invitation via email:', inviteError);
+        // Continue anyway - user can still add to calendar manually
+      }
+      
+      dispatch(setScheduled(scheduledData));
+      dispatch(setStep(3));
+      
+    } catch (error) {
+      console.error('error:', error);
+      if (error.response?.status === 409) {
+        alert(`A booking already exists for email ${bookingData.email} on date ${bookingData.date}`);
+      } else {
+        alert('Failed to create booking. Please try again later.');
+      }
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -149,15 +166,15 @@ export default function BookingFlow() {
             <StepCalendar
               calendar={calendar}
               tz={tz}
-              setTz={setTz}
+              setTz={(timezone) => dispatch(setTimezone(timezone))}
               date={date}
-              setDate={(d) => { setDate(d); setTime(""); }}
+              setDate={(d) => { dispatch(setDate(d)); }}
               time={time}
-              setTime={setTime}
+              setTime={(timeValue) => dispatch(setTime(timeValue))}
               dayLabel={dayLabel}
-              onNext={() => setStep(2)}
-              onPrevMonth={goToPrevMonth}
-              onNextMonth={goToNextMonth}
+              onNext={() => dispatch(setStep(2))}
+              onPrevMonth={() => dispatch(goToPrevMonth())}
+              onNextMonth={() => dispatch(goToNextMonth())}
             />
           )}
 
@@ -171,17 +188,22 @@ export default function BookingFlow() {
               email={email}
               lesson={lesson}
               course={course}
-              setName={setName}
-              setEmail={setEmail}
-              setLesson={setLesson}
-              setCourse={setCourse}
-              onBack={() => setStep(1)}
+              setName={(nameValue) => dispatch(setName(nameValue))}
+              setEmail={(emailValue) => dispatch(setEmail(emailValue))}
+              setLesson={(lessonValue) => dispatch(setLesson(lessonValue))}
+              setCourse={(courseValue) => dispatch(setCourse(courseValue))}
+              onBack={() => dispatch(setStep(1))}
               onSubmit={handleSubmit}
+              isLoading={isLoading}
             />
           )}
 
           {step === 3 && scheduled && (
-            <SuccessScreen inviteUrl={inviteUrl} scheduled={scheduled} />
+            <SuccessScreen 
+              inviteUrl={INVITE_URL} 
+              scheduled={scheduled} 
+              calendarLinks={calendarLinks}
+            />
           )}
         </section>
       </div>

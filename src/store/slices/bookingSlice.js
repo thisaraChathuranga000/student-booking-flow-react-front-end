@@ -1,18 +1,7 @@
-import React, { createContext, useContext, useState } from 'react';
+import { createSlice } from '@reduxjs/toolkit';
 
-const BookingContext = createContext();
-
-export const useBookings = () => {
-  const context = useContext(BookingContext);
-  if (!context) {
-    throw new Error('useBookings must be used within a BookingProvider');
-  }
-  return context;
-};
-
-export const BookingProvider = ({ children }) => {
-  // Initial mock data with more varied dates and names for better testing
-  const [bookings, setBookings] = useState([
+const initialState = {
+  bookings: [
     {
       id: 1,
       date: '2025-09-10',
@@ -101,48 +90,40 @@ export const BookingProvider = ({ children }) => {
       status: 'confirmed',
       createdAt: new Date('2025-09-12').toISOString()
     }
-  ]);
-
-  const addBooking = (newBooking) => {
-    const booking = {
-      ...newBooking,
-      id: Date.now(), // Simple ID generation for demo
-      status: 'confirmed',
-      createdAt: new Date().toISOString()
-    };
-    setBookings(prev => [...prev, booking]);
-    return booking;
-  };
-
-  const updateBookingStatus = (id, status) => {
-    setBookings(prev => 
-      prev.map(booking => 
-        booking.id === id ? { ...booking, status } : booking
-      )
-    );
-  };
-
-  const deleteBooking = (id) => {
-    setBookings(prev => prev.filter(booking => booking.id !== id));
-  };
-
-  const getBookingsByDate = (date) => {
-    return bookings.filter(booking => booking.date === date);
-  };
-
-  const value = {
-    bookings,
-    addBooking,
-    updateBookingStatus,
-    deleteBooking,
-    getBookingsByDate
-  };
-
-  return (
-    <BookingContext.Provider value={value}>
-      {children}
-    </BookingContext.Provider>
-  );
+  ]
 };
 
-export default BookingContext;
+const bookingSlice = createSlice({
+  name: 'booking',
+  initialState,
+  reducers: {
+    addBooking: (state, action) => {
+      const booking = {
+        ...action.payload,
+        id: Date.now(),
+        status: 'confirmed',
+        createdAt: new Date().toISOString()
+      };
+      state.bookings.push(booking);
+    },
+    updateBookingStatus: (state, action) => {
+      const { id, status } = action.payload;
+      const booking = state.bookings.find(booking => booking.id === id);
+      if (booking) {
+        booking.status = status;
+      }
+    },
+    deleteBooking: (state, action) => {
+      state.bookings = state.bookings.filter(booking => booking.id !== action.payload);
+    }
+  }
+});
+
+export const { addBooking, updateBookingStatus, deleteBooking } = bookingSlice.actions;
+
+// Selectors
+export const selectAllBookings = (state) => state.booking.bookings;
+export const selectBookingsByDate = (state, date) => 
+  state.booking.bookings.filter(booking => booking.date === date);
+
+export default bookingSlice.reducer;

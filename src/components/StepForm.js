@@ -7,7 +7,7 @@ export default function StepForm({
   center, date, time,
   name, email, lesson, course,
   setName, setEmail, setLesson, setCourse,
-  onBack, onSubmit
+  onBack, onSubmit, isLoading = false
 }) {
   return (
     <div>
@@ -73,7 +73,13 @@ export default function StepForm({
         </div>
 
         <div className="bf-actions">
-          <button type="submit" className="bf-btn-primary">Schedule Event</button>
+          <button 
+            type="submit" 
+            className="bf-btn-primary"
+            disabled={isLoading}
+          >
+            {isLoading ? 'Scheduling...' : 'Schedule Event'}
+          </button>
         </div>
       </form>
     </div>
