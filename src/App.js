@@ -23,8 +23,6 @@ function AppRoutes() {
   const handleAdminLogout = () => {
     dispatch(logoutAdmin());
     dispatch(clearAdminState());
-    // Optional: Also purge the persist storage completely
-    // persistor.purge();
   };
 
   return (

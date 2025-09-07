@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
+import { Trash2, Search } from 'lucide-react';
 import { useSelector, useDispatch } from 'react-redux';
 import {
   selectSelectedDate,
@@ -14,9 +15,6 @@ import {
   setIsLoading,
   setFilteredBookings,
   clearFilters,
-  clearSelectedDate,
-  clearSelectedCourse,
-  clearSearchTerm
 } from '../store/slices/adminDashboardSlice';
 import { bookingAPI } from '../services/api';
 import { COURSE_OPTIONS } from '../constants/courseOptions';
@@ -33,13 +31,11 @@ const AdminDashboard = ({ onLogout }) => {
   const filteredBookings = useSelector(selectFilteredBookings);
   const dispatch = useDispatch();
 
-  // Fetch bookings from API
   useEffect(() => {
     const fetchBookings = async () => {
       try {
         dispatch(setIsLoading(true));
         const data = await bookingAPI.getBookings();
-        // Transform API data to match expected format
         const transformedBookings = data.map(booking => ({
           id: booking._id,
           date: booking.date,
@@ -65,7 +61,6 @@ const AdminDashboard = ({ onLogout }) => {
   useEffect(() => {
     let filtered = bookings;
     if (selectedDate) {
-      // Format selected date to YYYY-MM-DD to match API format
       const year = selectedDate.getFullYear();
       const month = String(selectedDate.getMonth() + 1).padStart(2, '0');
       const day = String(selectedDate.getDate()).padStart(2, '0');
@@ -74,12 +69,10 @@ const AdminDashboard = ({ onLogout }) => {
       filtered = filtered.filter(booking => booking.date === selectedDateString);
     }
 
-    // Filter by course if selected
     if (selectedCourse) {
       filtered = filtered.filter(booking => booking.course === selectedCourse);
     }
 
-    // Filter by search term (name or email)
     if (searchTerm.trim()) {
       const searchLower = searchTerm.toLowerCase().trim();
       filtered = filtered.filter(booking => 
@@ -103,12 +96,10 @@ const AdminDashboard = ({ onLogout }) => {
     });
   };
 
-  // Handle delete booking
   const handleDeleteBooking = async (bookingId) => {
     if (window.confirm('Are you sure you want to delete this booking?')) {
       try {
         await bookingAPI.deleteBooking(bookingId);
-        // Remove the booking from local state
         setBookings(prevBookings => prevBookings.filter(booking => booking.id !== bookingId));
       } catch (error) {
         console.error('Failed to delete booking:', error);
@@ -167,7 +158,9 @@ const AdminDashboard = ({ onLogout }) => {
                   placeholder="Search by name or email..."
                   className="search-input"
                 />
-                <span className="search-icon">🔍</span>
+                <span className="search-icon">
+                  <Search size={18} />
+                </span>
               </div>
             </div>
             
@@ -212,32 +205,6 @@ const AdminDashboard = ({ onLogout }) => {
           </div>
         </div>
 
-        {(selectedDate || selectedCourse || searchTerm) && (
-          <div className="active-filters">
-            <h4>Active Filters:</h4>
-            <div className="filter-tags">
-              {selectedDate && (
-                <span className="filter-tag">
-                  Date: {selectedDate.toLocaleDateString()}
-                  <button onClick={() => dispatch(clearSelectedDate())} className="remove-filter">×</button>
-                </span>
-              )}
-              {selectedCourse && (
-                <span className="filter-tag">
-                  Course: {selectedCourse}
-                  <button onClick={() => dispatch(clearSelectedCourse())} className="remove-filter">×</button>
-                </span>
-              )}
-              {searchTerm && (
-                <span className="filter-tag">
-                  Search: "{searchTerm}"
-                  <button onClick={() => dispatch(clearSearchTerm())} className="remove-filter">×</button>
-                </span>
-              )}
-            </div>
-          </div>
-        )}
-
 
         <div className="bookings-table-container">
           <h2>
@@ -269,19 +236,19 @@ const AdminDashboard = ({ onLogout }) => {
                 <tbody>
                   {filteredBookings.map(booking => (
                     <tr key={booking.id}>
-                      <td>{booking.date}</td>
-                      <td>{booking.name}</td>
-                      <td>{booking.email}</td>
-                      <td>{booking.course}</td>
-                      <td>{booking.lesson}</td>
-                      <td>
+                      <td data-label="Date">{booking.date}</td>
+                      <td data-label="Student Name">{booking.name}</td>
+                      <td data-label="Email">{booking.email}</td>
+                      <td data-label="Course">{booking.course}</td>
+                      <td data-label="Lesson">{booking.lesson}</td>
+                      <td data-label="Actions">
                         <div className="action-buttons">
                           <button 
                             onClick={() => handleDeleteBooking(booking.id)}
                             className="action-btn delete-btn"
                             title="Delete booking"
                           >
-                            🗑️
+                            <Trash2 size={16} />
                           </button>
                         </div>
                       </td>
