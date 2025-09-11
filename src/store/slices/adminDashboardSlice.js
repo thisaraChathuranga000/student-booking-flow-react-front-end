@@ -3,6 +3,7 @@ import { createSlice } from '@reduxjs/toolkit';
 const initialState = {
   selectedDate: null,
   selectedCourse: '',
+  selectedBranch: '',
   searchTerm: '',
   isLoading: true,
   filteredBookings: []
@@ -18,6 +19,9 @@ const adminDashboardSlice = createSlice({
     setSelectedCourse: (state, action) => {
       state.selectedCourse = action.payload;
     },
+    setSelectedBranch: (state, action) => {
+      state.selectedBranch = action.payload;
+    },
     setSearchTerm: (state, action) => {
       state.searchTerm = action.payload;
     },
@@ -30,6 +34,7 @@ const adminDashboardSlice = createSlice({
     clearFilters: (state) => {
       state.selectedDate = null;
       state.selectedCourse = '';
+      state.selectedBranch = '';
       state.searchTerm = '';
     },
     clearSelectedDate: (state) => {
@@ -37,6 +42,9 @@ const adminDashboardSlice = createSlice({
     },
     clearSelectedCourse: (state) => {
       state.selectedCourse = '';
+    },
+    clearSelectedBranch: (state) => {
+      state.selectedBranch = '';
     },
     clearSearchTerm: (state) => {
       state.searchTerm = '';
@@ -47,12 +55,14 @@ const adminDashboardSlice = createSlice({
 export const {
   setSelectedDate,
   setSelectedCourse,
+  setSelectedBranch,
   setSearchTerm,
   setIsLoading,
   setFilteredBookings,
   clearFilters,
   clearSelectedDate,
   clearSelectedCourse,
+  clearSelectedBranch,
   clearSearchTerm
 } = adminDashboardSlice.actions;
 
@@ -60,6 +70,7 @@ export const {
 export const selectAdminDashboardState = (state) => state.adminDashboard;
 export const selectSelectedDate = (state) => state.adminDashboard.selectedDate;
 export const selectSelectedCourse = (state) => state.adminDashboard.selectedCourse;
+export const selectSelectedBranch = (state) => state.adminDashboard.selectedBranch;
 export const selectSearchTerm = (state) => state.adminDashboard.searchTerm;
 export const selectIsLoading = (state) => state.adminDashboard.isLoading;
 export const selectFilteredBookings = (state) => state.adminDashboard.filteredBookings;

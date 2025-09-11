@@ -1,8 +1,7 @@
 import axios from 'axios';
-import { BASE_URL } from '../constants/url';
 
 const api = axios.create({
-  baseURL: BASE_URL,
+  baseURL: process.env.REACT_APP_API_BASE_URL || 'http://localhost:5000',
   headers: {
     'Content-Type': 'application/json',
   },
@@ -17,6 +16,7 @@ export const bookingAPI = {
         email: bookingData.email,
         lesson: bookingData.lesson,
         name: bookingData.name,
+        branch: bookingData.branch
       });
       return response.data;
     } catch (error) {

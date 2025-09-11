@@ -17,6 +17,7 @@ import {
   setEmail,
   setLesson,
   setCourse,
+  setBranch,
   setScheduled,
   goToPrevMonth,
   goToNextMonth
@@ -43,7 +44,7 @@ export default function BookingFlow() {
   const tz = useSelector(selectTimezone);
   const date = useSelector(selectDate);
   const time = useSelector(selectTime);
-  const { name, email, lesson, course } = useSelector(selectFormData);
+  const { name, email, lesson, course, branch } = useSelector(selectFormData);
   const scheduled = useSelector(selectScheduled);
   const calendarMonth = useSelector(selectCalendarMonth);
 
@@ -55,6 +56,27 @@ export default function BookingFlow() {
     ? date.toLocaleDateString(undefined, { weekday: "long" })
     : "Day";
 
+  const handleNext = () => {
+    if (!date || time !== "09:00") return;
+    
+    // Get current time in Asia/Colombo
+    const nowColombo = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Colombo' }));
+    console.log('Current time in Asia/Colombo:', nowColombo);
+    // Selected date at 09:00 AM Asia/Colombo
+    const selectedDate = new Date(date);
+    selectedDate.setHours(9, 0, 0, 0);
+    // Difference in ms
+    const diffMs = selectedDate.getTime() - nowColombo.getTime();
+    const diffHours = diffMs / (1000 * 60 * 60);
+    
+    if (diffHours < 24) {
+      alert('Bookings must be made at least 24 hours in advance. Please select a later date.');
+      return;
+    }
+    
+    dispatch(setStep(2));
+  };
+
   const handleSubmit = async () => {
     setIsLoading(true);
 
@@ -63,7 +85,8 @@ export default function BookingFlow() {
       date: formatDateForAPI(date),
       email,
       lesson,
-      name
+      name,
+      branch
     };
     
     try {
@@ -84,6 +107,7 @@ export default function BookingFlow() {
         email,
         course,
         lesson,
+        branch,
         duration: "6 hr",
         address: CENTER.address,
         org: CENTER.org,
@@ -97,6 +121,7 @@ export default function BookingFlow() {
         email,
         course,
         lesson,
+        branch,
         date: bookingData.date,
         time,
         duration: 6, // 6 hours duration
@@ -138,6 +163,7 @@ export default function BookingFlow() {
     <div className="bf-page">
       {/* Modern Header */}
       <header className="home-header">
+        <img src="/logo1.png" alt="Institute Logo" className="institute-logo" width={90}/>
         <div className="home-header-content">
           <h1>International Sugar Studio and Campus</h1>
           <p>Book Your Learning Session - Battaramulla Center</p>
@@ -172,7 +198,7 @@ export default function BookingFlow() {
               time={time}
               setTime={(timeValue) => dispatch(setTime(timeValue))}
               dayLabel={dayLabel}
-              onNext={() => dispatch(setStep(2))}
+              onNext={handleNext}
               onPrevMonth={() => dispatch(goToPrevMonth())}
               onNextMonth={() => dispatch(goToNextMonth())}
             />
@@ -188,10 +214,12 @@ export default function BookingFlow() {
               email={email}
               lesson={lesson}
               course={course}
+              branch={branch}
               setName={(nameValue) => dispatch(setName(nameValue))}
               setEmail={(emailValue) => dispatch(setEmail(emailValue))}
               setLesson={(lessonValue) => dispatch(setLesson(lessonValue))}
               setCourse={(courseValue) => dispatch(setCourse(courseValue))}
+              setBranch={(branchValue) => dispatch(setBranch(branchValue))}
               onBack={() => dispatch(setStep(1))}
               onSubmit={handleSubmit}
               isLoading={isLoading}
