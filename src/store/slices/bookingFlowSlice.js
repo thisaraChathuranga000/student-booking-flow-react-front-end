@@ -9,6 +9,7 @@ const initialState = {
   email: '',
   lesson: '',
   course: '',
+  branch: '',
   scheduled: null,
   calendarMonth: {
     year: new Date().getFullYear(),
@@ -53,6 +54,9 @@ const bookingFlowSlice = createSlice({
     setCourse: (state, action) => {
       state.course = action.payload;
     },
+    setBranch: (state, action) => {
+      state.branch = action.payload;
+    },
     setScheduled: (state, action) => {
       state.scheduled = action.payload;
     },
@@ -96,6 +100,7 @@ export const {
   setEmail,
   setLesson,
   setCourse,
+  setBranch,
   setScheduled,
   setBookingCount,
   setIsLoadingCount,
@@ -115,7 +120,8 @@ export const selectFormData = (state) => ({
   name: state.bookingFlow.name,
   email: state.bookingFlow.email,
   lesson: state.bookingFlow.lesson,
-  course: state.bookingFlow.course
+  course: state.bookingFlow.course,
+  branch: state.bookingFlow.branch
 });
 export const selectScheduled = (state) => state.bookingFlow.scheduled;
 export const selectCalendarMonth = (state) => state.bookingFlow.calendarMonth;

@@ -6,11 +6,13 @@ import { useSelector, useDispatch } from 'react-redux';
 import {
   selectSelectedDate,
   selectSelectedCourse,
+  selectSelectedBranch,
   selectSearchTerm,
   selectIsLoading,
   selectFilteredBookings,
   setSelectedDate,
   setSelectedCourse,
+  setSelectedBranch,
   setSearchTerm,
   setIsLoading,
   setFilteredBookings,
@@ -18,6 +20,7 @@ import {
 } from '../store/slices/adminDashboardSlice';
 import { bookingAPI } from '../services/api';
 import { COURSE_OPTIONS } from '../constants/courseOptions';
+import { BRANCH } from '../constants/instituteData';
 import { exportBookingsToCSV, formatDate } from '../utils/exportUtils';
 import './AdminDashboard.css';
 
@@ -26,6 +29,7 @@ const AdminDashboard = ({ onLogout }) => {
   const [apiError, setApiError] = useState(null);
   const selectedDate = useSelector(selectSelectedDate);
   const selectedCourse = useSelector(selectSelectedCourse);
+  const selectedBranch = useSelector(selectSelectedBranch);
   const searchTerm = useSelector(selectSearchTerm);
   const isLoading = useSelector(selectIsLoading);
   const filteredBookings = useSelector(selectFilteredBookings);
@@ -42,7 +46,8 @@ const AdminDashboard = ({ onLogout }) => {
           name: booking.name,
           email: booking.email,
           lesson: booking.lesson,
-          course: booking.course
+          course: booking.course,
+          branch: booking.branch
         }));
         setBookings(transformedBookings);
         setApiError(null);
@@ -73,6 +78,10 @@ const AdminDashboard = ({ onLogout }) => {
       filtered = filtered.filter(booking => booking.course === selectedCourse);
     }
 
+    if (selectedBranch) {
+      filtered = filtered.filter(booking => booking.branch === selectedBranch);
+    }
+
     if (searchTerm.trim()) {
       const searchLower = searchTerm.toLowerCase().trim();
       filtered = filtered.filter(booking => 
@@ -82,7 +91,7 @@ const AdminDashboard = ({ onLogout }) => {
     }
 
     dispatch(setFilteredBookings(filtered));
-  }, [selectedDate, selectedCourse, searchTerm, bookings, dispatch]);
+  }, [selectedDate, selectedCourse, selectedBranch, searchTerm, bookings, dispatch]);
 
   const handleClearFilters = () => {
     dispatch(clearFilters());
@@ -92,6 +101,7 @@ const AdminDashboard = ({ onLogout }) => {
     exportBookingsToCSV(filteredBookings, {
       selectedDate,
       selectedCourse,
+      selectedBranch,
       searchTerm
     });
   };
@@ -193,6 +203,23 @@ const AdminDashboard = ({ onLogout }) => {
                 ))}
               </select>
             </div>
+
+            <div className="filter-group">
+              <label htmlFor="branch-filter">Filter by Branch:</label>
+              <select
+                id="branch-filter"
+                value={selectedBranch}
+                onChange={(e) => dispatch(setSelectedBranch(e.target.value))}
+                className="branch-filter-select"
+              >
+                <option value="">All Branches</option>
+                {BRANCH.map((branch) => (
+                  <option key={branch} value={branch}>
+                    {branch}
+                  </option>
+                ))}
+              </select>
+            </div>
             
             <div className="filter-actions">
               <button onClick={handleClearFilters} className="clear-filters-btn">
@@ -216,6 +243,7 @@ const AdminDashboard = ({ onLogout }) => {
               <p>No bookings found 
                 {selectedDate ? ' for the selected date' : ''}
                 {selectedCourse ? ' for the selected course' : ''}
+                {selectedBranch ? ' for the selected branch' : ''}
                 {searchTerm ? ' matching the search term' : ''}
                 .
               </p>
@@ -229,6 +257,7 @@ const AdminDashboard = ({ onLogout }) => {
                     <th>Student Name</th>
                     <th>Email</th>
                     <th>Course</th>
+                    <th>Branch</th>
                     <th>Lesson</th>
                     <th>Actions</th>
                   </tr>
@@ -240,6 +269,7 @@ const AdminDashboard = ({ onLogout }) => {
                       <td data-label="Student Name">{booking.name}</td>
                       <td data-label="Email">{booking.email}</td>
                       <td data-label="Course">{booking.course}</td>
+                      <td data-label="Branch">{booking.branch}</td>
                       <td data-label="Lesson">{booking.lesson}</td>
                       <td data-label="Actions">
                         <div className="action-buttons">
