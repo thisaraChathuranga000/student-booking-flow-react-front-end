@@ -31,7 +31,7 @@ import StepCalendar from "./StepCalendar";
 import StepForm from "./StepForm";
 import SuccessScreen from "./SuccessScreen";
 import { buildCalendar, toKey, formatRange, zoneLabel, formatDateForAPI } from "../utils/calendarUtils";
-import { generateCalendarLinks } from "../utils/calendarInvitation";
+// ...existing code...
 import { CENTER } from "../constants/instituteData";
 import { INVITE_URL } from "../constants/url";
  
@@ -39,7 +39,7 @@ import { INVITE_URL } from "../constants/url";
 export default function BookingFlow() {
   const dispatch = useDispatch();
   const [isLoading, setIsLoading] = useState(false);
-  const [calendarLinks, setCalendarLinks] = useState(null);
+  // Removed calendarLinks state, no longer needed
   const step = useSelector(selectStep);
   const tz = useSelector(selectTimezone);
   const date = useSelector(selectDate);
@@ -115,7 +115,7 @@ export default function BookingFlow() {
         bookingId: result?.id,
       };
       
-      // Generate calendar links for the booking
+      // Prepare calendar booking data for backend API
       const calendarBookingData = {
         name,
         email,
@@ -127,9 +127,6 @@ export default function BookingFlow() {
         duration: 6, // 6 hours duration
         center: CENTER
       };
-      
-      const links = generateCalendarLinks(calendarBookingData);
-      setCalendarLinks(links);
       
       // Attempt to send calendar invitation via backend
       try {
@@ -228,10 +225,9 @@ export default function BookingFlow() {
 
           {step === 3 && scheduled && (
             <SuccessScreen 
-              inviteUrl={INVITE_URL} 
-              scheduled={scheduled} 
-              calendarLinks={calendarLinks}
-            />
+                inviteUrl={INVITE_URL} 
+                scheduled={scheduled}
+              />
           )}
         </section>
       </div>
