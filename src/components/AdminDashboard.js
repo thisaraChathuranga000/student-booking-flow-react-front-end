@@ -3,7 +3,6 @@ import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { Trash2, Search } from 'lucide-react';
 import { useSelector, useDispatch } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
 import { selectIsAdminLoggedIn, loginAdmin, logoutAdmin, clearAdminState } from "../store/slices/adminSlice";
 import {
   selectSelectedDate,
@@ -20,15 +19,19 @@ import {
   setFilteredBookings,
   clearFilters,
 } from '../store/slices/adminDashboardSlice';
-import { bookingAPI } from '../services/api';
+import { bookingAPI, userAPI } from '../services/api';
 import { COURSE_OPTIONS } from '../constants/courseOptions';
 import { BRANCH } from '../constants/instituteData';
 import { exportBookingsToCSV, formatDate } from '../utils/exportUtils';
 import './AdminDashboard.css';
 
-const AdminDashboard = ({ onLogout }) => {
+const AdminDashboard = () => {
   const [bookings, setBookings] = useState([]);
   const [apiError, setApiError] = useState(null);
+  const [showLoginBox, setShowLoginBox] = useState(false);
+  const [loginCredentials, setLoginCredentials] = useState({ username: '', password: '' });
+  const [loginError, setLoginError] = useState('');
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
   const selectedDate = useSelector(selectSelectedDate);
   const selectedCourse = useSelector(selectSelectedCourse);
   const selectedBranch = useSelector(selectSelectedBranch);
@@ -37,7 +40,49 @@ const AdminDashboard = ({ onLogout }) => {
   const filteredBookings = useSelector(selectFilteredBookings);
   const isAdminLoggedIn = useSelector(selectIsAdminLoggedIn);
   const dispatch = useDispatch();
-  const navigate = useNavigate();
+
+  // Check if admin is logged in when accessing dashboard directly
+  useEffect(() => {
+    if (!isAdminLoggedIn) {
+      setShowLoginBox(true);
+    } else {
+      setShowLoginBox(false);
+    }
+  }, [isAdminLoggedIn]);
+
+  // Handle login form submission
+  const handleLoginSubmit = async (e) => {
+    e.preventDefault();
+    setIsLoggingIn(true);
+    setLoginError('');
+
+    try {
+      const response = await userAPI.login(loginCredentials);
+      
+      if (response.success === true) {
+        // Login successful
+        dispatch(loginAdmin());
+        setShowLoginBox(false);
+        setLoginCredentials({ username: '', password: '' });
+      } else {
+        // Login failed
+        setLoginError('Invalid username or password');
+      }
+    } catch (error) {
+      console.error('Login error:', error);
+      setLoginError('Login failed. Please try again.');
+    } finally {
+      setIsLoggingIn(false);
+    }
+  };
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setLoginCredentials(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
 
   useEffect(() => {
     const fetchBookings = async () => {
@@ -115,13 +160,6 @@ const AdminDashboard = ({ onLogout }) => {
     dispatch(clearAdminState())
   }
 
-  useEffect(() => {
-    if (!isAdminLoggedIn) {
-      // If admin is not logged in, navigate to admin login page
-      navigate('/admin');
-    }
-  }, [isAdminLoggedIn, navigate]);
-
   const handleDeleteBooking = async (bookingId) => {
     if (window.confirm('Are you sure you want to delete this booking?')) {
       try {
@@ -133,6 +171,58 @@ const AdminDashboard = ({ onLogout }) => {
       }
     }
   };
+
+  // Show login box if not logged in
+  if (showLoginBox) {
+    return (
+      <div className="admin-dashboard">
+        <div className="login-overlay">
+          <div className="login-box">
+            <h2>Admin Login Required</h2>
+            <p>Please login to access the admin dashboard.</p>
+            
+            <form onSubmit={handleLoginSubmit}>
+              <div className="form-group">
+                <label htmlFor="username">Username:</label>
+                <input
+                  type="text"
+                  id="username"
+                  name="username"
+                  value={loginCredentials.username}
+                  onChange={handleInputChange}
+                  required
+                />
+              </div>
+              
+              <div className="form-group">
+                <label htmlFor="password">Password:</label>
+                <input
+                  type="password"
+                  id="password"
+                  name="password"
+                  value={loginCredentials.password}
+                  onChange={handleInputChange}
+                  required
+                />
+              </div>
+              
+              {loginError && (
+                <div className="error-message">{loginError}</div>
+              )}
+              
+              <button 
+                type="submit" 
+                disabled={isLoggingIn}
+                className="login-submit-btn"
+              >
+                {isLoggingIn ? 'Logging in...' : 'Login'}
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (isLoading) {
     return (
