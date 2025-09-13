@@ -3,6 +3,8 @@ import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { Trash2, Search } from 'lucide-react';
 import { useSelector, useDispatch } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
+import { selectIsAdminLoggedIn, loginAdmin, logoutAdmin, clearAdminState } from "../store/slices/adminSlice";
 import {
   selectSelectedDate,
   selectSelectedCourse,
@@ -33,7 +35,9 @@ const AdminDashboard = ({ onLogout }) => {
   const searchTerm = useSelector(selectSearchTerm);
   const isLoading = useSelector(selectIsLoading);
   const filteredBookings = useSelector(selectFilteredBookings);
+  const isAdminLoggedIn = useSelector(selectIsAdminLoggedIn);
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchBookings = async () => {
@@ -105,6 +109,18 @@ const AdminDashboard = ({ onLogout }) => {
       searchTerm
     });
   };
+  const onLogoutControl = () => {
+    // onLogout();
+    dispatch(logoutAdmin());
+    dispatch(clearAdminState())
+  }
+
+  useEffect(() => {
+    if (!isAdminLoggedIn) {
+      // If admin is not logged in, navigate to admin login page
+      navigate('/admin');
+    }
+  }, [isAdminLoggedIn, navigate]);
 
   const handleDeleteBooking = async (bookingId) => {
     if (window.confirm('Are you sure you want to delete this booking?')) {
@@ -149,7 +165,7 @@ const AdminDashboard = ({ onLogout }) => {
           <h1>Admin Dashboard</h1>
           <p>International Sugar Studio and Campus</p>
         </div>
-        <button onClick={onLogout} className="logout-button">
+        <button onClick={onLogoutControl} className="logout-button">
           Logout
         </button>
       </header>
