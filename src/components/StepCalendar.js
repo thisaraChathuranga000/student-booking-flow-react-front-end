@@ -5,9 +5,10 @@ import { MONTHS, sameDay, formatDateForAPI } from "../utils/calendarUtils";
 import { bookingAPI } from "../services/api";
 import { MAX_SPOTS } from "../constants/bookingConstants";
 import { selectBookingCount, selectIsLoadingCount, setBookingCount, setIsLoadingCount } from "../store/slices/bookingFlowSlice";
+import { BRANCH } from "../constants/instituteData";
 
 export default function StepCalendar({
-  calendar, date, setDate, time, setTime, dayLabel, onNext, onPrevMonth, onNextMonth
+  calendar, date, setDate, time, setTime, dayLabel, onNext, onPrevMonth, onNextMonth, branch, setBranch
 }) {
   const dispatch = useDispatch();
   const monthName = MONTHS[calendar.month];
@@ -40,10 +41,36 @@ export default function StepCalendar({
     }
   }, [date, dispatch]);
 
+  // Clear selected date if it becomes invalid due to branch restrictions
+  useEffect(() => {
+    if (date && branch === "Battaramulla") {
+      const isMonday = date.getDay() === 1;
+      const isTuesday = date.getDay() === 2;
+      if (isMonday || isTuesday) {
+        setDate(null); // Clear the invalid date
+      }
+    }
+  }, [branch, date, setDate]);
+
   return (
     <div>
       <div className="bf-right-top">
         <h2 className="bf-h2">Select a Date & Time</h2>
+        
+        <div className="bf-field bf-field--wide">
+          <label>Branch *</label>
+          <select
+            value={branch}
+            onChange={(e) => setBranch(e.target.value)}
+            required
+          >
+            <option value="">Select Branch…</option>
+            {BRANCH.map((b) => (
+              <option key={b} value={b}>{b}</option>
+            ))}
+          </select>
+        </div>
+
         {date && (
           <div className="bf-pill">
             {date.toLocaleDateString(undefined, {
@@ -85,7 +112,23 @@ export default function StepCalendar({
               const active = date && d && sameDay(date, d);
               const otherMonth = !(d && d.getMonth() === calendar.month);
               const past = d && d < today;
-              const disabled = otherMonth || past;
+              
+              // Disable Monday (1) and Tuesday (2) for Battaramulla branch
+              const isBattaramulla = branch === "Battaramulla";
+              const isMonday = d && d.getDay() === 1;
+              const isTuesday = d && d.getDay() === 2;
+              const branchRestricted = isBattaramulla && (isMonday || isTuesday);
+              
+              const disabled = otherMonth || past || branchRestricted;
+              
+              // Determine title message
+              let titleMessage = "";
+              if (past) {
+                titleMessage = "Past dates are not available";
+              } else if (branchRestricted) {
+                titleMessage = "Battaramulla branch is closed on Mondays and Tuesdays";
+              }
+              
               return (
                 <button
                   key={i}
@@ -95,10 +138,11 @@ export default function StepCalendar({
                     "bf-day",
                     otherMonth ? "bf-day-dim" : "",
                     past ? "bf-day-past" : "",
+                    branchRestricted ? "bf-day-restricted" : "",
                     active ? "bf-day-active" : "",
                     disabled ? "bf-day-disabled" : ""
                   ].join(" ")}
-                  title={past ? "Past dates are not available" : ""}
+                  title={titleMessage}
                 >
                   {d ? d.getDate() : ""}
                 </button>

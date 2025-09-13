@@ -2,12 +2,11 @@ import React from "react";
 import "./StepForm.css";
 import { formatRange } from "../utils/calendarUtils";
 import { COURSE_OPTIONS } from "../constants/courseOptions";
-import { BRANCH } from "../constants/instituteData";
 
 export default function StepForm({
   center, date, time,
-  name, email, lesson, course, branch,
-  setName, setEmail, setLesson, setCourse, setBranch,
+  name, email, lesson, course,
+  setName, setEmail, setLesson, setCourse,
   onBack, onSubmit, isLoading = false
 }) {
   return (
@@ -73,27 +72,13 @@ export default function StepForm({
           </select>
         </div>
 
-        <div className="bf-field bf-field--wide">
-          <label>Branch *</label>
-          <select
-            value={branch}
-            onChange={(e) => setBranch(e.target.value)}
-            required
-          >
-            <option value="">Select Branch…</option>
-            {BRANCH.map((b) => (
-              <option key={b} value={b}>{b}</option>
-            ))}
-          </select>
-        </div>
-
         <div className="bf-actions">
           <button 
             type="submit" 
             className="bf-btn-primary"
             disabled={isLoading}
           >
-            {isLoading ? 'Scheduling...' : 'Schedule Event'}
+            {isLoading ? 'Scheduling...' : 'Schedule Lesson'}
           </button>
         </div>
       </form>
