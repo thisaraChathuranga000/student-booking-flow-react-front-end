@@ -181,6 +181,8 @@ export default function BookingFlow() {
               time={time}
               setTime={(timeValue) => dispatch(setTime(timeValue))}
               dayLabel={dayLabel}
+              branch={branch}
+              setBranch={(branchValue) => dispatch(setBranch(branchValue))}
               onNext={handleNext}
               onPrevMonth={() => dispatch(goToPrevMonth())}
               onNextMonth={() => dispatch(goToNextMonth())}
@@ -197,12 +199,10 @@ export default function BookingFlow() {
               email={email}
               lesson={lesson}
               course={course}
-              branch={branch}
               setName={(nameValue) => dispatch(setName(nameValue))}
               setEmail={(emailValue) => dispatch(setEmail(emailValue))}
               setLesson={(lessonValue) => dispatch(setLesson(lessonValue))}
               setCourse={(courseValue) => dispatch(setCourse(courseValue))}
-              setBranch={(branchValue) => dispatch(setBranch(branchValue))}
               onBack={() => dispatch(setStep(1))}
               onSubmit={handleSubmit}
               isLoading={isLoading}
