@@ -37,7 +37,7 @@ function AppRoutes() {
             path="/admin" 
             element={
               isAdminLoggedIn ? 
-                <Navigate to="/admin/dashboard" replace /> : 
+                <Navigate to="/admin/dashboard" /> : 
                 <AdminLogin onLogin={handleAdminLogin} />
             } 
           />
@@ -48,12 +48,12 @@ function AppRoutes() {
             element={
               isAdminLoggedIn ? 
                 <AdminDashboard onLogout={handleAdminLogout} /> : 
-                <Navigate to="/admin" replace />
+                <Navigate to="/admin" />
             } 
           />
           
           {/* Catch all route - redirect to home */}
-          <Route path="*" element={<Navigate to="/" replace />} />
+          {/* <Route path="*" element={<Navigate to="/" replace />} /> */}
         </Routes>
       </div>
     </Router>
