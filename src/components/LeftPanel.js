@@ -15,11 +15,6 @@ export default function LeftPanel({ center }) {
         </div>
       </header>
 
-      {/* <ul className="bf-meta">
-        <InfoRow icon="⏱" label={center.duration} />
-        <InfoRow icon="📍" label={center.address} />
-      </ul> */}
-
       <div className="bf-copy">
         <p>
           සියලුම සිසුන් මෙම form එක අනිවාර්යෙන්ම සම්පුර්ණ කර ඔබ පැමිණෙන

@@ -31,7 +31,6 @@ import StepCalendar from "./StepCalendar";
 import StepForm from "./StepForm";
 import SuccessScreen from "./SuccessScreen";
 import { buildCalendar, toKey, formatRange, zoneLabel, formatDateForAPI } from "../utils/calendarUtils";
-// ...existing code...
 import { CENTER } from "../constants/instituteData";
 import { INVITE_URL } from "../constants/url";
  
@@ -39,7 +38,6 @@ import { INVITE_URL } from "../constants/url";
 export default function BookingFlow() {
   const dispatch = useDispatch();
   const [isLoading, setIsLoading] = useState(false);
-  // Removed calendarLinks state, no longer needed
   const step = useSelector(selectStep);
   const tz = useSelector(selectTimezone);
   const date = useSelector(selectDate);
@@ -58,14 +56,10 @@ export default function BookingFlow() {
 
   const handleNext = () => {
     if (!date || time !== "09:00") return;
-    
-    // Get current time in Asia/Colombo
     const nowColombo = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Colombo' }));
     console.log('Current time in Asia/Colombo:', nowColombo);
-    // Selected date at 09:00 AM Asia/Colombo
     const selectedDate = new Date(date);
     selectedDate.setHours(9, 0, 0, 0);
-    // Difference in ms
     const diffMs = selectedDate.getTime() - nowColombo.getTime();
     const diffHours = diffMs / (1000 * 60 * 60);
     
@@ -115,7 +109,6 @@ export default function BookingFlow() {
         bookingId: result?.id,
       };
       
-      // Prepare calendar booking data for backend API
       const calendarBookingData = {
         name,
         email,
@@ -124,11 +117,10 @@ export default function BookingFlow() {
         branch,
         date: bookingData.date,
         time,
-        duration: 6, // 6 hours duration
+        duration: 6, 
         center: CENTER
       };
       
-      // Attempt to send calendar invitation via backend
       try {
         await bookingAPI.sendCalendarInvitation({
           to: email,
@@ -138,7 +130,6 @@ export default function BookingFlow() {
         console.log('Calendar invitation sent successfully');
       } catch (inviteError) {
         console.warn('Failed to send calendar invitation via email:', inviteError);
-        // Continue anyway - user can still add to calendar manually
       }
       
       dispatch(setScheduled(scheduledData));
@@ -164,11 +155,6 @@ export default function BookingFlow() {
         <div className="home-header-content">
           <h1>International Sugar Studio and Campus</h1>
           <p>Book Your Learning Session - Battaramulla Center</p>
-        </div>
-        <div className="header-actions">
-          <Link to="/admin" className="button-login">
-            Login
-          </Link>
         </div>
       </header>
       
