@@ -40,8 +40,6 @@ function AppRoutes() {
         <Route 
           path="/admin" 
           element={
-            isAdminLoggedIn ? 
-              <Navigate to="/admin/dashboard" replace /> : 
               <AdminLogin onLogin={handleAdminLogin} />
           } 
         />
@@ -53,7 +51,7 @@ function AppRoutes() {
               <Navigate to="/admin" replace />
           } 
         />
-        <Route path="*" element={<Navigate to="/" replace />} />
+
       </Routes>
     </div>
   );
