@@ -1,7 +1,5 @@
 # Student Booking Flow – React Front End
 
-Welcome to the Student Booking Flow front-end! 
-
 This project is a modern, responsive React application designed to streamline the student booking process for educational institutes. It provides an intuitive multi-step booking flow, admin dashboard, and seamless integration with backend services.
 
 ## Features
